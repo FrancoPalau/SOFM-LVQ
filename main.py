@@ -7,11 +7,11 @@ import seaborn as sns
 
 
 def alfa(t,tf):
-    return 0.3+(0.01-0.3)*(t/tf)
+    return RITMO_INICIAL+(RITMO_INICIAL - RITMO_INICIAL)*(t/tf)
 
 
 def r(t,tf):
-    return 1+(0-1)*(t/tf)
+    return VECINOS_INICIAL+(VECINOS_FINAL - VECINOS_INICIAL)*(t/tf)
 
 
 def h(modulo,t,tf):
@@ -43,7 +43,7 @@ def main():
 
     # Creacion de dataset
     data = make_blobs(n_samples=200, n_features=2,
-                      centers=4, cluster_std=1.3, random_state=10)
+                      centers=4, cluster_std=1.8, random_state=101)
     dataset = pd.DataFrame(data[0],columns="X Y".split())
     dataset["C"] = data[1]
     sns.lmplot("X","Y",dataset,hue="C",fit_reg=False)
@@ -75,7 +75,7 @@ def main():
             for j in range(NEURONAS_Y):
                 for k in range(NEURONAS_ENTRADA):
                     ind_otra = (i,j)
-                    Wijk[i][j][k] += alfa(it,tf)*h(modulo(ind_otra,winner[0]),it,tf)*(x[k] - Wijk[i][j][k])
+                    Wijk[i][j][k] += alfa(it,tf)*h(modulo(ind_otra,winner[0]),it,tf)*np.sign(x[k] - Wijk[i][j][k])
 
     ####### TESTEO ######
 
@@ -95,7 +95,11 @@ def main():
 if __name__ == "__main__":
 
     NEURONAS_ENTRADA = 2
-    NEURONAS_X = 10
-    NEURONAS_Y = 10
+    NEURONAS_X = 20
+    NEURONAS_Y = 20
+    RITMO_INICIAL = 0.3
+    RITMO_FINAL = 0.01
+    VECINOS_INICIAL = 2
+    VECINOS_FINAL = 0
 
     main()
