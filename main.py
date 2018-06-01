@@ -42,7 +42,7 @@ def main():
 
     # Creacion de dataset
     data = make_blobs(n_samples=200, n_features=2,
-                      centers=4, cluster_std=1.8, random_state=101)
+                      centers=4, cluster_std=1.1, random_state=10)
     plt.scatter(data[0][:, 0], data[0][:, 1], c=data[1], cmap='rainbow')
     plt.show()
     dataset = pd.DataFrame(data[0],columns="X Y".split())
@@ -56,6 +56,7 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(dataset["X Y".split()],dataset["C"], test_size=0.3, random_state=101)
 
     ####### ENTRENAMIENTO ########
+
     tf = len(X_train.index)
     for it, ejemplo in enumerate(X_train.index):
         # Vector de entrada
@@ -65,21 +66,33 @@ def main():
         distancias = np.array(manhattan(Wijk, x))
 
         # Indice de la neurona ganadora
-        ind_winner = np.unravel_index(np.argmin(distancias, axis=None), distancias.shape)
+        winner = (np.unravel_index(np.argmin(distancias, axis=None), distancias.shape), y_train[ejemplo])
+        print(winner)
 
         #Actualizamos el peso de las neuronas
         for i in range(NEURONAS_X):
             for j in range(NEURONAS_Y):
                 for k in range(NEURONAS_ENTRADA):
                     ind_otra = (i,j)
-                    Wijk[i][j][k] += Wijk[i][j][k] + \
-                                     alfa(it,tf)*h(modulo(ind_otra,ind_winner),it,tf)*(x[k] - Wijk[i][j][k])
+                    Wijk[i][j][k] += alfa(it,tf)*h(modulo(ind_otra,winner[0]),it,tf)*(x[k] - Wijk[i][j][k])
 
     ####### TESTEO ######
+    print("####### TESTEO ######")
+    for it, ejemplo in enumerate(X_test.index):
+        # Vector de entrada
+        x = X_test.loc[ejemplo]
+
+        # Calculo de las distancias de todas las neuronas
+        distancias = np.array(manhattan(Wijk, x))
+
+        # Indice de la neurona ganadora
+        winner = (np.unravel_index(np.argmin(distancias, axis=None), distancias.shape), y_test[ejemplo])
+        print(winner)
+
 if __name__ == "__main__":
 
     NEURONAS_ENTRADA = 2
-    NEURONAS_X = 4
-    NEURONAS_Y = 4
+    NEURONAS_X = 10
+    NEURONAS_Y = 10
 
     main()
