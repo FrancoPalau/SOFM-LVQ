@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.datasets import make_blobs
 from sklearn.model_selection import train_test_split
+import seaborn as sns
 
 
 def alfa(t,tf):
@@ -42,14 +43,14 @@ def main():
 
     # Creacion de dataset
     data = make_blobs(n_samples=200, n_features=2,
-                      centers=4, cluster_std=1.1, random_state=10)
-    plt.scatter(data[0][:, 0], data[0][:, 1], c=data[1], cmap='rainbow')
-    plt.show()
+                      centers=4, cluster_std=1.3, random_state=10)
     dataset = pd.DataFrame(data[0],columns="X Y".split())
     dataset["C"] = data[1]
+    sns.lmplot("X","Y",dataset,hue="C",fit_reg=False)
+
     print(dataset.head(10))
 
-    #Inicializacion de pesos
+    # Inicializacion de pesos
     Wijk = np.random.randint(low=-100, high=100, size=(NEURONAS_X, NEURONAS_Y, NEURONAS_ENTRADA)) / 10000
 
     # Dividimos el dataset en entrenamiento y testeo(X=entradas, y=salidas)
@@ -77,6 +78,7 @@ def main():
                     Wijk[i][j][k] += alfa(it,tf)*h(modulo(ind_otra,winner[0]),it,tf)*(x[k] - Wijk[i][j][k])
 
     ####### TESTEO ######
+
     print("####### TESTEO ######")
     for it, ejemplo in enumerate(X_test.index):
         # Vector de entrada
@@ -89,6 +91,7 @@ def main():
         winner = (np.unravel_index(np.argmin(distancias, axis=None), distancias.shape), y_test[ejemplo])
         print(winner)
 
+    plt.show()
 if __name__ == "__main__":
 
     NEURONAS_ENTRADA = 2
