@@ -43,7 +43,7 @@ def main():
 
     # Creacion de dataset
     data = make_blobs(n_samples=200, n_features=2,
-                      centers=4, cluster_std=1.8, random_state=101)
+                      centers=4, cluster_std=1.1, random_state=101)
     dataset = pd.DataFrame(data[0],columns="X Y".split())
     dataset["C"] = data[1]
     sns.lmplot("X","Y",dataset,hue="C",fit_reg=False)
@@ -67,7 +67,7 @@ def main():
         distancias = np.array(manhattan(Wijk, x))
 
         # Indice de la neurona ganadora
-        winner = (np.unravel_index(np.argmin(distancias, axis=None), distancias.shape), y_train[ejemplo])
+        winner = np.unravel_index(np.argmin(distancias, axis=None), distancias.shape)
         print(winner)
 
         #Actualizamos el peso de las neuronas
@@ -75,20 +75,23 @@ def main():
             for j in range(NEURONAS_Y):
                 for k in range(NEURONAS_ENTRADA):
                     ind_otra = (i,j)
-                    Wijk[i][j][k] += alfa(it,tf)*h(modulo(ind_otra,winner[0]),it,tf)*np.sign(x[k] - Wijk[i][j][k])
+                    Wijk[i][j][k] += alfa(it,tf)*h(modulo(ind_otra,winner),it,tf)*np.sign(x[k] - Wijk[i][j][k])
 
-    ####### TESTEO ######
+    #Un ejemplo de cada clase
+    etiquetas = pd.DataFrame([[-5.430110,9.258785,3],[5.027458,5.775428,2],[-0.102300,2.544474,0],
+                              [-10.315632,-6.290664,1]],columns=dataset.columns)
 
-    print("####### TESTEO ######")
-    for it, ejemplo in enumerate(X_test.index):
+    mapa_neuronas = 
+
+    for it, ejemplo in enumerate(etiquetas.index):
         # Vector de entrada
-        x = X_test.loc[ejemplo]
+        x = etiquetas.loc[ejemplo]
 
         # Calculo de las distancias de todas las neuronas
         distancias = np.array(manhattan(Wijk, x))
 
         # Indice de la neurona ganadora
-        winner = (np.unravel_index(np.argmin(distancias, axis=None), distancias.shape), y_test[ejemplo])
+        winner = (np.unravel_index(np.argmin(distancias, axis=None), distancias.shape), etiquetas.loc[ejemplo]["C"])
         print(winner)
 
     plt.show()
@@ -99,7 +102,7 @@ if __name__ == "__main__":
     NEURONAS_Y = 20
     RITMO_INICIAL = 0.3
     RITMO_FINAL = 0.01
-    VECINOS_INICIAL = 2
+    VECINOS_INICIAL = 0
     VECINOS_FINAL = 0
 
     main()
