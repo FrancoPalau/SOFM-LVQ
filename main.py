@@ -49,7 +49,8 @@ def main():
     # Ploteamos el dataset
     sns.lmplot("X","Y",dataset,hue="C",fit_reg=False)
     plt.show()
-    dataset = pd.read_csv("example")
+    #dataset = pd.read_csv("example")
+    #dataset.drop(dataset.columns[:500], axis=1, inplace=True)
 
     # Inicializacion de pesos
     Wijk = np.random.randint(low=-100, high=100, size=(NEURONAS_X, NEURONAS_Y, NEURONAS_ENTRADA)) / 10000
@@ -60,6 +61,7 @@ def main():
     print("Kohonen in progress....")
     tf = len(X_train.index) # Cantidad de ejemplos(iteraciones)
     for it, ejemplo in enumerate(X_train.index): # Iteramos a traves de cada ejemplo de entrenamiento
+        print(it)
         x = X_train.loc[ejemplo]# Vector de entrada
         distancias = np.array(manhattan(Wijk, x))# Calculo de las distancias de todas las neuronas
         winner = np.unravel_index(np.argmin(distancias, axis=None), distancias.shape) # Indice de la neurona ganadora
@@ -70,10 +72,11 @@ def main():
                     Wijk[i][j][k] += alfa(it,tf)*h(modulo((i,j),winner),it,tf)*np.sign(x[k] - Wijk[i][j][k])
 
     #Un ejemplo de cada clase
-    # etiquetas = pd.DataFrame([[-5.430110,9.258785,3],[5.027458,5.775428,2],[-0.102300,2.544474,0],
-    #                           [-10.315632,-6.290664,1]],columns=dataset.columns)
-    etiquetas = pd.DataFrame([dataset.loc[79], dataset.loc[133], dataset.loc[109],
-                              dataset.loc[31], dataset.loc[0], dataset.loc[55]], columns=dataset.columns)
+    etiquetas = pd.DataFrame([dataset[dataset["C"] == 0].iloc[0],dataset[dataset["C"] == 1].iloc[0],
+                              dataset[dataset["C"] == 2].iloc[0],dataset[dataset["C"] == 3].iloc[0]],
+                             columns=dataset.columns)
+    #etiquetas = pd.DataFrame([dataset.loc[79], dataset.loc[133], dataset.loc[109],
+    #                          dataset.loc[31], dataset.loc[0], dataset.loc[55]], columns=dataset.columns)
 
     mapa_neuronas = np.ones((NEURONAS_X, NEURONAS_Y))*-1 # Inicializamos todas las neuronas con clase -1(valor imposible)
 
@@ -105,7 +108,7 @@ def main():
                         Wijk[i][j][k] -= alfa_const * abs(x[k] - Wijk[i][j][k])
 
     # ----TESTEO---- #
-    x = X_test.loc[X_test.index[5]]
+    x = X_test.loc[X_test.index[33]]
     distancias = np.array(manhattan(Wijk, x))
     # Graficamos dos Heatmaps, el primero para las neuronas que se activan
     # y el segundo con las distancias al ejemplo de testeo
@@ -118,7 +121,7 @@ def main():
 
 if __name__ == "__main__":
 
-    NEURONAS_ENTRADA = 561
+    NEURONAS_ENTRADA = 2
     NEURONAS_X = 10
     NEURONAS_Y = 10
     RITMO_INICIAL = 0.3
